@@ -82,6 +82,12 @@ export default {
       consultaCep: function() {
           this.$axios.get(`https://viacep.com.br/ws/${this.clinica.cep}/json/`)
             .then(response => {
+                if (response.data.erro) {
+                    this.cepError = true
+                    this.clinica.location = "..."
+                    this.clinica.location_number = ''
+                    return false
+                }
                 if (response.status === 200) this.udpateClinica(response.data)
             }).catch(error => {
                 this.cepError = true
@@ -113,7 +119,6 @@ export default {
           this.cepError = false
           this.clinica.endereco = { ...location }
           this.clinica.location = `${location.uf} - ${location.localidade} - ${location.bairro}, ${location.logradouro}`
-          console.log(this.clinica.endereco)
       },
       onChangeStreetNumber: function() {
         this.$axios.get(`https://api.tomtom.com/search/2/geocode/${this.clinica.endereco.uf} ${this.clinica.endereco.bairro} ${this.clinica.endereco.logradouro} ${this.clinica.location_number}.json?countrySet=BR&key=OUDQc6LJtt7waPIQnT1CY9syUaKS8CvI`)
