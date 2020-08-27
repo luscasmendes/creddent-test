@@ -32,7 +32,7 @@
                 <div class="col">
                     <q-input v-model="clinica.location" label="Endereço" readonly  />
                 </div>
-                <q-input v-model="clinica.location_number" label="Número" />
+                <q-input v-model="clinica.location_number" label="Número" @change="onChangeStreetNumber" />
             </div>
 
             <GmapMap
@@ -48,7 +48,6 @@
                 v-bind:clickable="true"
             />
             </GmapMap>
-            <div id="map"></div>
 
             <p v-if="submitError === true" class="text-negative q-mt-md">Preencha todos os campos necessários</p>
             <p v-if="submitSuccess" class="text-white bg-positive q-pa-md q-mt-md">Clinica adicionada com sucesso!</p>
@@ -115,6 +114,16 @@ export default {
           this.clinica.endereco = { ...location }
           this.clinica.location = `${location.uf} - ${location.localidade} - ${location.bairro}, ${location.logradouro}`
           console.log(this.clinica.endereco)
+      },
+      onChangeStreetNumber: function() {
+        this.$axios.get(`https://api.tomtom.com/search/2/geocode/${this.clinica.endereco.uf} ${this.clinica.endereco.bairro} ${this.clinica.endereco.logradouro} ${this.clinica.location_number}.json?countrySet=BR&key=OUDQc6LJtt7waPIQnT1CY9syUaKS8CvI`)
+            .then(response => {
+                this.center.lat = response.data.results[0].position.lat
+                this.center.lng = response.data.results[0].position.lon
+
+                this.markers[0].position = this.center
+                this.clinica.endereco.position = this.center
+            })
       }
   }
 }
